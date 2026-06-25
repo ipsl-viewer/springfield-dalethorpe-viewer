@@ -319,4 +319,15 @@ const chart=new Chart(document.getElementById('mc').getContext('2d'),{
              if(v%2000===0)return(v/1000).toFixed(0)+' km';
              if(v%1000===0)return(v/1000).toFixed(1)+'k';
              if(v%500===0)return v+'m';
-     
+                  if(v%200===0)return '';
+             return '';
+           }},
+         grid:{color:'rgba(255,255,255,0.04)'},border:{color:'#1e3048'}},
+      y:{display:false,
+         grid:{color:'rgba(255,255,255,0.05)'},border:{color:'#1e3048'}}
+    }
+  }
+});
+</script>
+</body>
+</html>
