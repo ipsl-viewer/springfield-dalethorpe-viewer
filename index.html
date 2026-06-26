@@ -424,12 +424,16 @@ const chart=new Chart(document.getElementById('mc').getContext('2d'),{
   const csEl=document.getElementById('cs-main');
   const xrEl=document.getElementById('xruler-cs');
   const FULL=12000,TOTAL=10672;
-  for(let km=0;km*1000<=TOTAL;km++){
-    const ch=km*1000;
+  // Use chart's own scale so markers align exactly with chart content
+  const xa=chart.scales.x;
+  const marks=[...Array(Math.floor(TOTAL/1000)+1).keys()].map(k=>k*1000);
+  if(marks[marks.length-1]<TOTAL) marks.push(TOTAL);
+  for(const ch of marks){
+    const px=xa.getPixelForValue(ch);
     const m=document.createElement('span');
     m.className='xrm';
-    m.style.left=(ch/FULL*100)+'%';
-    m.textContent=km===0?'0':km+' km';
+    m.style.left=(px/FULL*100)+'%';
+    m.textContent=ch===0?'0':ch===TOTAL?'End':(ch/1000)+' km';
     ruler.appendChild(m);
   }
   ruler.style.width='12000px';
