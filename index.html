@@ -300,7 +300,6 @@ const customPlugin = {
       const px=xa.getPixelForValue(b.ch);
       if(px<ca.left||px>ca.right)continue;
       ctx.beginPath();ctx.moveTo(px,ca.top);ctx.lineTo(px,ca.bottom);ctx.stroke();
-      ctx.fillText(b.label,px+3,ca.bottom-6);
     }
     // Feature lines — thin coloured verticals, hover tooltip via JS mousemove
     ctx.setLineDash([]);
@@ -425,13 +424,6 @@ const chart=new Chart(document.getElementById('mc').getContext('2d'),{
   const csEl=document.getElementById('cs-main');
   const xrEl=document.getElementById('xruler-cs');
   const FULL=12000,TOTAL=10672;
-  for(const b of BOUNDARIES){
-    const s=document.createElement('span');
-    s.className='xrsec';
-    s.style.left=(b.ch/FULL*100)+'%';
-    s.textContent=b.label;
-    ruler.appendChild(s);
-  }
   for(let km=0;km*1000<=TOTAL;km++){
     const ch=km*1000;
     const m=document.createElement('span');
