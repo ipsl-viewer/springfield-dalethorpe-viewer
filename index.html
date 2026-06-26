@@ -121,7 +121,7 @@ footer{padding:7px 18px;background:#080f18;font-size:0.79rem;color:#3a5a79;borde
 </div>
 <div class="chart-row">
   <canvas id="yc" width="80" height="520"></canvas>
-  <div class="cs" id="cs-main"><canvas id="mc" width="12000" height="520"></canvas></div>
+  <div class="cs" id="cs-main" style="position:relative"><canvas id="mc" width="12000" height="520"></canvas><div id="xhair" style="position:absolute;top:0;left:0;width:1px;background:rgba(255,255,255,0.35);pointer-events:none;display:none;z-index:10"></div></div>
 </div>
 <div class="xruler-row">
   <div style="width:80px;flex-shrink:0"></div>
@@ -326,7 +326,8 @@ const chart=new Chart(document.getElementById('mc').getContext('2d'),{
   options:{
     responsive:false,
     animation:false,
-    interaction:{mode:'index',axis:'x',intersect:false},
+    elements:{point:{hoverRadius:0,radius:0}},
+    interaction:{mode:'nearest',axis:'x',intersect:false},
     plugins:{
       legend:{display:false},
       tooltip:{
@@ -408,8 +409,18 @@ const chart=new Chart(document.getElementById('mc').getContext('2d'),{
     } else {
       tip.style.display='none';
     }
+    // Crosshair line — position in CSS pixels relative to canvas left edge
+    const xh=document.getElementById('xhair');
+    const ca2=chart.chartArea;
+    const cssLeft=(cx/scaleX); // back to CSS px within canvas
+    if(cx>=ca2.left&&cx<=ca2.right){
+      xh.style.left=cssLeft+'px';
+      xh.style.top=(ca2.top/scaleX)+'px';
+      xh.style.height=((ca2.bottom-ca2.top)/scaleX)+'px';
+      xh.style.display='block';
+    } else { xh.style.display='none'; }
   });
-  mc.addEventListener('mouseleave',function(){tip.style.display='none';});
+  mc.addEventListener('mouseleave',function(){tip.style.display='none';document.getElementById('xhair').style.display='none';});
 })();
 
 </script>
