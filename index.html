@@ -326,6 +326,7 @@ const chart=new Chart(document.getElementById('mc').getContext('2d'),{
   options:{
     responsive:false,
     animation:false,
+    events:[],
     elements:{point:{hoverRadius:0,radius:0}},
     interaction:{mode:'nearest',axis:'x',intersect:false},
     plugins:{
@@ -394,7 +395,15 @@ const chart=new Chart(document.getElementById('mc').getContext('2d'),{
     const scaleX=mc.width/rect.width;
     const cx=(e.clientX-rect.left)*scaleX;
     const xa=chart.scales.x,ca=chart.chartArea;
-    if(cx<ca.left||cx>ca.right){tip.style.display='none';return;}
+    const hb=document.getElementById('hb'),fb=document.getElementById('fb');
+    if(cx<ca.left||cx>ca.right){
+      tip.style.display='none';
+      document.getElementById('xhair').style.display='none';
+      hb.innerHTML='<span>Hover over the profile to read data</span>';
+      fb.innerHTML='<span>Hover near a feature marker to see details</span>';
+      return;
+    }
+    // Feature hover tooltip
     let found=null,minD=15*scaleX;
     for(const f of FEATURES){
       const px=xa.getPixelForValue(f.ch);
@@ -409,18 +418,56 @@ const chart=new Chart(document.getElementById('mc').getContext('2d'),{
     } else {
       tip.style.display='none';
     }
-    // Crosshair line — position in CSS pixels relative to canvas left edge
+    // Crosshair line
     const xh=document.getElementById('xhair');
-    const ca2=chart.chartArea;
-    const cssLeft=(cx/scaleX); // back to CSS px within canvas
-    if(cx>=ca2.left&&cx<=ca2.right){
-      xh.style.left=cssLeft+'px';
-      xh.style.top=(ca2.top/scaleX)+'px';
-      xh.style.height=((ca2.bottom-ca2.top)/scaleX)+'px';
-      xh.style.display='block';
-    } else { xh.style.display='none'; }
+    const cssLeft=(cx/scaleX);
+    xh.style.left=cssLeft+'px';
+    xh.style.top=(ca.top/scaleX)+'px';
+    xh.style.height=((ca.bottom-ca.top)/scaleX)+'px';
+    xh.style.display='block';
+    // Info bar — use correctly-scaled cx to get true chainage (bypasses Chart.js coord caching bug at Fit zoom)
+    const trueCH=Math.round(xa.getValueForPixel(cx));
+    let gPt=null,pPt=null,gDist=Infinity,pDist=Infinity;
+    for(const ds of chart.data.datasets){
+      if(!ds.label||!ds.data)continue;
+      if(ds.label.includes('Ground')){
+        for(const pt of ds.data){
+          const d=Math.abs(pt.x-trueCH);
+          if(d<gDist){gDist=d;gPt=pt;}
+        }
+      } else if(ds.label.includes('Pipe')){
+        for(const pt of ds.data){
+          const d=Math.abs(pt.x-trueCH);
+          if(d<pDist){pDist=d;pPt=pt;}
+        }
+      }
+    }
+    if(gPt){
+      const gRL=gPt.y,pRL=pPt?pPt.y:(gRL-PIPE_INV);
+      const cover=(gRL-pRL-0.082).toFixed(2);
+      hb.innerHTML=
+        '<span>Cumul. CH&nbsp;<span class="v">'+trueCH.toLocaleString('en-NZ')+' m</span></span>'+
+        '<span>Ground&nbsp;<span class="v">'+gRL.toFixed(2)+' mRL</span></span>'+
+        '<span>Pipe invert (est.)&nbsp;<span class="v">'+pRL.toFixed(2)+' mRL</span></span>'+
+        '<span>Est. cover&nbsp;<span class="v">'+cover+' m</span></span>';
+    } else {
+      hb.innerHTML='<span>Hover over the profile to read data</span>';
+    }
+    const nf=findNearFeature(trueCH);
+    if(nf){
+      fb.innerHTML='<span class="ftag" style="color:'+nf.col+';background:#1e3048;padding:0 3px;border-radius:2px;font-size:0.65rem;font-weight:700">'+nf.sym+'</span>'+
+        '&nbsp;<span class="ft">'+nf.label.replace(/\n/g,' — ')+'</span>'+
+        '<span style="color:#3a5a79">CH '+nf.ch.toLocaleString('en-NZ')+' m ('+nf.dist+' m away)</span>';
+    } else {
+      fb.innerHTML='<span style="color:#2a4a69">No feature within 80 m</span>';
+    }
   });
-  mc.addEventListener('mouseleave',function(){tip.style.display='none';document.getElementById('xhair').style.display='none';});
+  mc.addEventListener('mouseleave',function(){
+    tip.style.display='none';
+    document.getElementById('xhair').style.display='none';
+    document.getElementById('hb').innerHTML='<span>Hover over the profile to read data</span>';
+    document.getElementById('fb').innerHTML='<span>Hover near a feature marker to see details</span>';
+  });
 })();
 
 </script>
