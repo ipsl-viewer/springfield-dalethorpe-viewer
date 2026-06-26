@@ -44,7 +44,22 @@ function setZoom(val) {
     document.getElementById('zpct').textContent = displayPct + '%';
   }
   mc.style.width = cssW + 'px';
+  document.getElementById('xruler').style.width = cssW + 'px';
 }
+// Populate HTML X axis ruler (always readable regardless of CSS zoom)
+(function(){
+  const ruler=document.getElementById('xruler');
+  const FULL=12000,TOTAL=10672;
+  for(let km=0;km*1000<=TOTAL;km++){
+    const ch=km*1000;
+    const m=document.createElement('span');
+    m.className='xrm';
+    m.style.left=(ch/FULL*100)+'%';
+    m.textContent=km===0?'0':km+' km';
+    ruler.appendChild(m);
+  }
+})();
+
 </script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -92,6 +107,10 @@ footer{padding:7px 18px;background:#080f18;font-size:0.79rem;color:#3a5a79;borde
 .zbtn.active{background:#2a5a8a;color:#e0ecf8;border-color:#4a8abf}
 #zslider{flex:1;max-width:320px;accent-color:#4a8abf;cursor:pointer;height:4px}
 .zpct{color:#7a9bbf;font-size:0.82rem;min-width:44px;text-align:right}
+
+#xruler{position:relative;height:26px;width:12000px;background:#0d1b2a;flex-shrink:0}
+.xrm{position:absolute;color:#5a7a99;font-size:0.80rem;transform:translateX(-50%);top:5px;white-space:nowrap;user-select:none;pointer-events:none}
+.xtitle-bar{text-align:center;color:#5a7a99;font-size:0.88rem;padding:2px 0 5px;background:#0d1b2a;letter-spacing:0.02em}
 </style>
 </head>
 <body>
@@ -111,8 +130,9 @@ footer{padding:7px 18px;background:#080f18;font-size:0.79rem;color:#3a5a79;borde
 </div>
 <div class="chart-row">
   <canvas id="yc" width="80" height="520"></canvas>
-  <div class="cs"><canvas id="mc" width="12000" height="520"></canvas></div>
+  <div class="cs"><canvas id="mc" width="12000" height="520"></canvas><div id="xruler"></div></div>
 </div>
+<div class="xtitle-bar">Cumulative Chainage (m)</div>
 <div class="hbar" id="hb"><span>Hover over the profile to read data</span></div>
 <div class="fbar" id="fb"><span>Hover near a feature marker to see details</span></div>
 <div class="leg"><div class='li'><span class='ls' style='background:#42A5F5'></span><span class='ln'>Domain Road</span><span class='lsub'>W03–W06</span><span class='lch'>CH 0–2,178 m</span></div><div class='li'><span class='ls' style='background:#FFA726'></span><span class='ln'>Springfield Road</span><span class='lsub'>W08–W17</span><span class='lch'>CH 2,178–7,378 m</span></div><div class='li'><span class='ls' style='background:#66BB6A'></span><span class='ln'>Dalethorpe Road</span><span class='lsub'>W20–W22</span><span class='lch'>CH 7,378–8,708 m</span></div><div class='li'><span class='ls' style='background:#EF5350'></span><span class='ln'>Bell Hill Road</span><span class='lsub'>W24–W25</span><span class='lch'>CH 8,708–9,688 m</span></div><div class='li'><span class='ls' style='background:#CE93D8'></span><span class='ln'>Bell Hill — Private Property</span><span class='lsub'>W27–W30</span><span class='lch'>CH 9,688–10,672 m</span></div></div>
