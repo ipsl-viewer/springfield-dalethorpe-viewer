@@ -43,7 +43,9 @@ function setZoom(val) {
     document.getElementById('zpct').textContent = displayPct + '%';
   }
   const newH = Math.round(MIN_H + (FULL_H - MIN_H) * pct);
-  document.getElementById('yc').height = newH;
+  const yc = document.getElementById('yc');
+  yc.height = newH;
+  yc.style.height = newH + 'px';
   chart.resize(newW, newH);
 }
 </script>
