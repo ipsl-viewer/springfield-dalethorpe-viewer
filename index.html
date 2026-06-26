@@ -20,29 +20,30 @@
 
 function setZoom(val) {
   const cs = document.querySelector('.cs');
+  const mc = document.getElementById('mc');
   const containerW = cs.clientWidth || 900;
   const FULL_W = 12000;
-  let newW;
+  let cssW;
   document.getElementById('zbfit').classList.remove('active');
   document.getElementById('zbfull').classList.remove('active');
   if (val === 'fit') {
-    newW = containerW;
+    cssW = containerW;
     document.getElementById('zslider').value = 0;
     document.getElementById('zpct').textContent = 'Fit';
     document.getElementById('zbfit').classList.add('active');
   } else if (val === 'full') {
-    newW = FULL_W;
+    cssW = FULL_W;
     document.getElementById('zslider').value = 100;
     document.getElementById('zpct').textContent = '100%';
     document.getElementById('zbfull').classList.add('active');
   } else {
     const pct = parseInt(val) / 100;
-    newW = Math.round(containerW + (FULL_W - containerW) * pct);
-    newW = Math.max(containerW, newW);
-    const displayPct = Math.round((newW / FULL_W) * 100);
+    cssW = Math.round(containerW + (FULL_W - containerW) * pct);
+    cssW = Math.max(containerW, cssW);
+    const displayPct = Math.round((cssW / FULL_W) * 100);
     document.getElementById('zpct').textContent = displayPct + '%';
   }
-  chart.resize(newW, 520);
+  mc.style.width = cssW + 'px';
 }
 </script>
 <style>
