@@ -21,28 +21,30 @@
 function setZoom(val) {
   const cs = document.querySelector('.cs');
   const containerW = cs.clientWidth || 900;
-  const FULL = 12000;
-  let newW;
+  const FULL_W = 12000, FULL_H = 520, MIN_H = 260;
+  let newW, pct;
   document.getElementById('zbfit').classList.remove('active');
   document.getElementById('zbfull').classList.remove('active');
   if (val === 'fit') {
-    newW = containerW;
+    newW = containerW; pct = 0;
     document.getElementById('zslider').value = 0;
     document.getElementById('zpct').textContent = 'Fit';
     document.getElementById('zbfit').classList.add('active');
   } else if (val === 'full') {
-    newW = FULL;
+    newW = FULL_W; pct = 1;
     document.getElementById('zslider').value = 100;
     document.getElementById('zpct').textContent = '100%';
     document.getElementById('zbfull').classList.add('active');
   } else {
-    const pct = parseInt(val) / 100;
-    newW = Math.round(containerW + (FULL - containerW) * pct);
+    pct = parseInt(val) / 100;
+    newW = Math.round(containerW + (FULL_W - containerW) * pct);
     newW = Math.max(containerW, newW);
-    const displayPct = Math.round((newW / FULL) * 100);
+    const displayPct = Math.round((newW / FULL_W) * 100);
     document.getElementById('zpct').textContent = displayPct + '%';
   }
-  chart.resize(newW, 520);
+  const newH = Math.round(MIN_H + (FULL_H - MIN_H) * pct);
+  document.getElementById('yc').height = newH;
+  chart.resize(newW, newH);
 }
 </script>
 <style>
