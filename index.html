@@ -285,23 +285,19 @@ const customPlugin = {
       ctx.beginPath();ctx.moveTo(px,ca.top);ctx.lineTo(px,ca.bottom);ctx.stroke();
       ctx.fillText(b.label,px+3,ca.bottom-6);
     }
-    // Feature markers
+    // Feature lines — thin coloured verticals, hover tooltip via JS mousemove
     ctx.setLineDash([]);
     for(const f of FEATURES){
       const px=xa.getPixelForValue(f.ch);
       if(px<ca.left-2||px>ca.right+2)continue;
-      // Tick line from bottom of chart down
+      ctx.save();
+      ctx.globalAlpha=0.5;
       ctx.strokeStyle=f.col;ctx.lineWidth=1.5;
-      ctx.beginPath();ctx.moveTo(px,ca.bottom);ctx.lineTo(px,ca.bottom+6);ctx.stroke();
-      // Tag background + text
-      ctx.font='bold 8px Segoe UI,Arial';ctx.textAlign='center';
-      const tw=Math.max(ctx.measureText(f.sym).width+6,16);
-      ctx.fillStyle='#0d1b2a';
-      ctx.fillRect(px-tw/2,ca.bottom+7,tw,11);
-      ctx.strokeStyle=f.col;ctx.lineWidth=0.8;
-      ctx.strokeRect(px-tw/2,ca.bottom+7,tw,11);
+      ctx.beginPath();ctx.moveTo(px,ca.top);ctx.lineTo(px,ca.bottom);ctx.stroke();
+      ctx.globalAlpha=1;
       ctx.fillStyle=f.col;
-      ctx.fillText(f.sym,px,ca.bottom+16.5);
+      ctx.beginPath();ctx.arc(px,ca.bottom,3,0,Math.PI*2);ctx.fill();
+      ctx.restore();
     }
     ctx.restore();
   }
@@ -372,6 +368,37 @@ const chart=new Chart(document.getElementById('mc').getContext('2d'),{
     }
   }
 });
+// Feature hover tooltip
+(function(){
+  const mc=document.getElementById('mc');
+  const tip=document.createElement('div');
+  tip.id='ftip';
+  tip.style.cssText='position:fixed;display:none;background:#0a1520;border:1px solid #2a4a6a;color:#e0ecf8;padding:5px 12px;border-radius:5px;font-size:0.83rem;pointer-events:none;z-index:200;white-space:nowrap;box-shadow:0 2px 10px rgba(0,0,0,0.6)';
+  document.body.appendChild(tip);
+  mc.addEventListener('mousemove',function(e){
+    const rect=mc.getBoundingClientRect();
+    const scaleX=mc.width/rect.width;
+    const cx=(e.clientX-rect.left)*scaleX;
+    const xa=chart.scales.x,ca=chart.chartArea;
+    if(cx<ca.left||cx>ca.right){tip.style.display='none';return;}
+    let found=null,minD=15*scaleX;
+    for(const f of FEATURES){
+      const px=xa.getPixelForValue(f.ch);
+      const d=Math.abs(cx-px);
+      if(d<minD){minD=d;found=f;}
+    }
+    if(found){
+      tip.style.display='block';
+      tip.style.left=(e.clientX+14)+'px';
+      tip.style.top=(e.clientY-32)+'px';
+      tip.innerHTML='<span style="color:'+found.col+';font-weight:700;margin-right:7px">'+found.sym+'</span>'+found.label.replace(/\n/g,' — ')+'<span style="color:#4a6a89;margin-left:10px;font-size:0.76rem">CH '+found.ch.toLocaleString('en-NZ')+' m</span>';
+    } else {
+      tip.style.display='none';
+    }
+  });
+  mc.addEventListener('mouseleave',function(){tip.style.display='none';});
+})();
+
 </script>
 </body>
 </html>
