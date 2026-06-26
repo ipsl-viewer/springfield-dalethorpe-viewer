@@ -347,12 +347,9 @@ const chart=new Chart(document.getElementById('mc').getContext('2d'),{
           }
           if(!gPt)return;
           const ch=gPt.raw.x, gRL=gPt.raw.y, pRL=pPt?pPt.raw.y:(gRL-PIPE_INV);
-          const si=secAt(ch), localCH=ch-SEC_OFFSETS[si], col=SEC_COLORS[si];
           const cover=(gRL-pRL-0.082).toFixed(2);
           hb.innerHTML=
-            '<span><span class="dot" style="background:'+col+'"></span><span class="v">'+SEC_NAMES[si]+'</span></span>'+
             '<span>Cumul. CH&nbsp;<span class="v">'+ch.toLocaleString('en-NZ')+' m</span></span>'+
-            '<span>Local CH&nbsp;<span class="v">'+localCH+' m</span></span>'+
             '<span>Ground&nbsp;<span class="v">'+gRL.toFixed(2)+' mRL</span></span>'+
             '<span>Pipe invert (est.)&nbsp;<span class="v">'+pRL.toFixed(2)+' mRL</span></span>'+
             '<span>Est. cover&nbsp;<span class="v">'+cover+' m</span></span>';
