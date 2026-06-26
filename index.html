@@ -46,9 +46,12 @@ function setZoom(val) {
   mc.style.width = cssW + 'px';
   document.getElementById('xruler').style.width = cssW + 'px';
 }
-// Populate HTML X axis ruler (always readable regardless of CSS zoom)
-(function(){
+// Populate HTML X axis ruler — deferred until DOM ready
+window.addEventListener('load',function(){
   const ruler=document.getElementById('xruler');
+  if(!ruler)return;
+  const csEl=document.getElementById('cs-main');
+  const xrEl=document.getElementById('xruler-cs');
   const FULL=12000,TOTAL=10672;
   // Top tier: section boundary names
   for(const b of BOUNDARIES){
@@ -64,17 +67,13 @@ function setZoom(val) {
     const m=document.createElement('span');
     m.className='xrm';
     m.style.left=(ch/FULL*100)+'%';
-    m.textContent=km===0?'0':km+' km';
+    m.textContent=km===0?'0':km+' km';
     ruler.appendChild(m);
   }
-})();
+  ruler.style.width='12000px';
+  if(csEl&&xrEl)csEl.addEventListener('scroll',function(){xrEl.scrollLeft=csEl.scrollLeft;});
+});
 
-// Sync xruler scroll with main chart scroll
-(function(){
-  const csEl=document.getElementById('cs-main');
-  const xrEl=document.getElementById('xruler-cs');
-  csEl.addEventListener('scroll',function(){xrEl.scrollLeft=csEl.scrollLeft;});
-})();
 
 </script>
 <style>
